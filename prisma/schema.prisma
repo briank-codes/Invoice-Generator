@@ -13,36 +13,61 @@ datasource db {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
+  id           String    @id @default(cuid())
+  email        String    @unique
   passwordHash String
   name         String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   clients      Client[]
+  invoices     Invoice[]
 }
 
 model Client {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   name      String
   email     String?
   phone     String?
   address   String?
   userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  createdAt DateTime @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  invoices  Invoice[]
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
 
 model Invoice {
-  id    String @id @default(cuid())
-  title String
+  id        String        @id @default(cuid())
+  number    String
+  title     String?
+  status    InvoiceStatus @default(DRAFT)
+  issueDate DateTime      @default(now())
+  dueDate   DateTime
+  notes     String?
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  clientId  String
+  client    Client        @relation(fields: [clientId], references: [id])
+  items     InvoiceItem[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@unique([userId, number])
+  @@index([userId])
+  @@index([clientId])
 }
 
 model InvoiceItem {
-  
-  id String @id @default(cuid())
-}
+  id          String  @id @default(cuid())
+  description String
+  quantity    Int
+  unitPrice   Int
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
+  @@index([invoiceId])
+}
 enum InvoiceStatus {
   DRAFT
   SENT
