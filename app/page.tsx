@@ -11,7 +11,8 @@ export default async function Home() {
     <div>
       <h1>Welcome, {user.name}</h1>
       <p>{user.email}</p>
-      <Link href="/clients">My Clients</Link>
+      <div><Link href="/clients">My Clients</Link></div>
+      <div><Link href="/invoices">Invoices</Link></div>
       <LogoutButton />
     </div>
   );
