@@ -64,52 +64,69 @@ export default function ClientsPage() {
     }
   }
 
-  return (
-    <main>
-      <h1>My Clients</h1>
+  const inputClass =
+    "w-full rounded-md border border-black/10 px-3 py-2 text-sm outline-none focus:border-neutral-400 dark:border-white/10 dark:bg-neutral-900";
 
-      <form onSubmit={handleSubmit}>
+  return (
+    <main className="mx-auto max-w-3xl p-6">
+      <h1 className="text-2xl font-semibold">My Clients</h1>
+
+      <form
+        onSubmit={handleSubmit}
+        className="mt-6 grid grid-cols-1 gap-3 rounded-lg border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-neutral-900 sm:grid-cols-2"
+      >
         <input
+          className={inputClass}
           placeholder="Name *"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
         />
         <input
+          className={inputClass}
           placeholder="Email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
         />
         <input
+          className={inputClass}
           placeholder="Phone"
           value={form.phone}
           onChange={(e) => setForm({ ...form, phone: e.target.value })}
         />
         <input
+          className={inputClass}
           placeholder="Address"
           value={form.address}
           onChange={(e) => setForm({ ...form, address: e.target.value })}
         />
-        <button type="submit">Add client</button>
+        <button
+          type="submit"
+          className="sm:col-span-2 rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+        >
+          Add client
+        </button>
       </form>
 
-      {error && <p>{error}</p>}
+      {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
 
-      {loading ? (
-        <p>Loading...</p>
-      ) : clients.length === 0 ? (
-        <p>No clients yet.</p>
-      ) : (
-        <ul>
-          {clients.map((c) => (
-            <li key={c.id}>
-              {c.name}
-              {c.email && ` · ${c.email}`}
-              {c.phone && ` · ${c.phone}`}
-              {c.address && ` · ${c.address}`}
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="mt-6">
+        {loading ? (
+          <p className="text-sm text-neutral-500">Loading...</p>
+        ) : clients.length === 0 ? (
+          <p className="text-sm text-neutral-500">No clients yet.</p>
+        ) : (
+          <ul className="divide-y divide-black/10 rounded-lg border border-black/10 bg-white shadow-sm dark:divide-white/10 dark:border-white/10 dark:bg-neutral-900">
+            {clients.map((c) => (
+              <li key={c.id} className="p-4 text-sm">
+                <span className="font-medium">{c.name}</span>
+                {c.email && <span className="text-neutral-500"> · {c.email}</span>}
+                {c.phone && <span className="text-neutral-500"> · {c.phone}</span>}
+                {c.address && <span className="text-neutral-500"> · {c.address}</span>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </main>
   );
 }
