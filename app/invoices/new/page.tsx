@@ -13,7 +13,6 @@ const emptyItem = (): ItemRow => ({
   unitPrice: "",
 });
 
-// "1500.50" -> 150050 (minor units). Returns null if invalid.
 function toMinorUnits(value: string): number | null {
   const n = Number(value);
   if (!value.trim() || !Number.isFinite(n) || n < 0) return null;
@@ -26,6 +25,10 @@ function formatMoney(minorUnits: number) {
     maximumFractionDigits: 2,
   });
 }
+
+const inputClass =
+  "w-full rounded-md border border-black/10 px-3 py-2 text-sm outline-none focus:border-neutral-400 dark:border-white/10 dark:bg-neutral-900";
+const labelClass = "block text-sm font-medium mb-1";
 
 export default function NewInvoicePage() {
   const router = useRouter();
@@ -126,100 +129,135 @@ export default function NewInvoicePage() {
 
   if (!loadingClients && clients.length === 0 && !error) {
     return (
-      <main>
-        <h1>New invoice</h1>
-        <p>
-          You need a client first. <Link href="/clients">Add one here</Link>.
+      <main className="mx-auto max-w-2xl p-6">
+        <h1 className="text-2xl font-semibold">New invoice</h1>
+        <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
+          You need a client first.{" "}
+          <Link href="/clients" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+            Add one here
+          </Link>
+          .
         </p>
       </main>
     );
   }
 
   return (
-    <main>
-      <h1>New invoice</h1>
-      <Link href="/invoices">Back to invoices</Link>
+    <main className="mx-auto max-w-2xl p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">New invoice</h1>
+        <Link href="/invoices" className="text-sm text-neutral-500 hover:underline">
+          Back to invoices
+        </Link>
+      </div>
 
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={handleSubmit}
+        className="mt-6 space-y-5 rounded-lg border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-neutral-900"
+      >
         <div>
-          <label>
-            Client
-            <select value={clientId} onChange={(e) => setClientId(e.target.value)}>
-              <option value="">Select a client</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <label className={labelClass}>Client</label>
+          <select
+            className={inputClass}
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+          >
+            <option value="">Select a client</option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
-          <label>
-            Title (optional)
-            <input value={title} onChange={(e) => setTitle(e.target.value)} />
-          </label>
+          <label className={labelClass}>Title (optional)</label>
+          <input className={inputClass} value={title} onChange={(e) => setTitle(e.target.value)} />
         </div>
 
         <div>
-          <label>
-            Due date
-            <input
-              type="date"
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-            />
-          </label>
+          <label className={labelClass}>Due date</label>
+          <input
+            type="date"
+            className={inputClass}
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
         </div>
 
-        <h2>Items</h2>
-        {items.map((item, i) => (
-          <div key={i}>
-            <input
-              placeholder="Description"
-              value={item.description}
-              onChange={(e) => updateItem(i, "description", e.target.value)}
-            />
-            <input
-              type="number"
-              min="1"
-              step="1"
-              placeholder="Qty"
-              value={item.quantity}
-              onChange={(e) => updateItem(i, "quantity", e.target.value)}
-            />
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder="Unit price"
-              value={item.unitPrice}
-              onChange={(e) => updateItem(i, "unitPrice", e.target.value)}
-            />
-            {items.length > 1 && (
-              <button type="button" onClick={() => removeItem(i)}>
-                Remove
-              </button>
-            )}
+        <div>
+          <h2 className="text-sm font-semibold mb-2">Items</h2>
+          <div className="space-y-2">
+            {items.map((item, i) => (
+              <div key={i} className="flex gap-2">
+                <input
+                  className={`${inputClass} flex-[3]`}
+                  placeholder="Description"
+                  value={item.description}
+                  onChange={(e) => updateItem(i, "description", e.target.value)}
+                />
+                <input
+                  type="number"
+                  min="1"
+                  step="1"
+                  className={`${inputClass} flex-1`}
+                  placeholder="Qty"
+                  value={item.quantity}
+                  onChange={(e) => updateItem(i, "quantity", e.target.value)}
+                />
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className={`${inputClass} flex-1`}
+                  placeholder="Unit price"
+                  value={item.unitPrice}
+                  onChange={(e) => updateItem(i, "unitPrice", e.target.value)}
+                />
+                {items.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeItem(i)}
+                    className="px-2 text-sm text-red-600 hover:underline"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-        <button type="button" onClick={() => setItems([...items, emptyItem()])}>
-          Add item
-        </button>
-
-        <p>Total: KES {formatMoney(total)}</p>
-
-        <div>
-          <label>
-            Notes (optional)
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
-          </label>
+          <button
+            type="button"
+            onClick={() => setItems([...items, emptyItem()])}
+            className="mt-3 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+          >
+            + Add item
+          </button>
         </div>
 
-        {error && <p>{error}</p>}
+        <div className="flex items-center justify-between border-t border-black/10 pt-4 dark:border-white/10">
+          <span className="text-sm text-neutral-500">Total</span>
+          <span className="text-lg font-semibold">KES {formatMoney(total)}</span>
+        </div>
 
-        <button type="submit" disabled={submitting}>
+        <div>
+          <label className={labelClass}>Notes (optional)</label>
+          <textarea
+            className={inputClass}
+            rows={3}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+        </div>
+
+        {error && <p className="text-sm text-red-600">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full rounded-md bg-neutral-900 px-4 py-2 text-sm font-medium text-white hover:bg-neutral-700 disabled:opacity-50 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+        >
           {submitting ? "Creating..." : "Create invoice"}
         </button>
       </form>
