@@ -109,3 +109,26 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const userId = getUserId(req);
+  if (!userId) return unauthorized();
+
+  const { id } = await params;
+
+  const existing = await prisma.invoice.findFirst({ where: { id, userId } });
+  if (!existing) return notFound();
+
+  try {
+    await prisma.invoice.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json(
+      { error: { code: "SERVER_ERROR", message: "Something went wrong" } },
+      { status: 500 }
+    );
+  }
+}
