@@ -64,6 +64,22 @@ export default function ClientsPage() {
     }
   }
 
+  async function handleDelete(id: string) {
+    if (!confirm("Delete this client?")) return;
+    setError("");
+    try {
+      const res = await fetch(`/api/clients/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error?.message ?? "Failed to delete client");
+        return;
+      }
+      await loadClients();
+    } catch {
+      setError("Failed to delete client");
+    }
+  }
+
   const inputClass =
     "w-full rounded-md border border-black/10 px-3 py-2 text-sm outline-none focus:border-neutral-400 dark:border-white/10 dark:bg-neutral-900";
 
@@ -117,11 +133,19 @@ export default function ClientsPage() {
         ) : (
           <ul className="divide-y divide-black/10 rounded-lg border border-black/10 bg-white shadow-sm dark:divide-white/10 dark:border-white/10 dark:bg-neutral-900">
             {clients.map((c) => (
-              <li key={c.id} className="p-4 text-sm">
-                <span className="font-medium">{c.name}</span>
-                {c.email && <span className="text-neutral-500"> · {c.email}</span>}
-                {c.phone && <span className="text-neutral-500"> · {c.phone}</span>}
-                {c.address && <span className="text-neutral-500"> · {c.address}</span>}
+              <li key={c.id} className="flex items-center justify-between p-4 text-sm">
+                <div>
+                  <span className="font-medium">{c.name}</span>
+                  {c.email && <span className="text-neutral-500"> · {c.email}</span>}
+                  {c.phone && <span className="text-neutral-500"> · {c.phone}</span>}
+                  {c.address && <span className="text-neutral-500"> · {c.address}</span>}
+                </div>
+                <button
+                  onClick={() => handleDelete(c.id)}
+                  className="text-red-600 hover:underline"
+                >
+                  Delete
+                </button>
               </li>
             ))}
           </ul>
