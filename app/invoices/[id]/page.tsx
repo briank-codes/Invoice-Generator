@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 type Invoice = {
@@ -35,12 +35,14 @@ function formatMoney(minorUnits: number) {
 
 export default function InvoiceDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
 
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function load() {
     try {
@@ -85,6 +87,25 @@ export default function InvoiceDetailPage() {
     }
   }
 
+  async function handleDelete() {
+    if (!confirm("Delete this invoice? This cannot be undone.")) return;
+    setDeleting(true);
+    setError("");
+    try {
+      const res = await fetch(`/api/invoices/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error?.message ?? "Failed to delete invoice");
+        setDeleting(false);
+        return;
+      }
+      router.push("/invoices");
+    } catch {
+      setError("Failed to delete invoice");
+      setDeleting(false);
+    }
+  }
+
   if (loading) return <p className="p-6 text-sm text-neutral-500">Loading...</p>;
   if (error && !invoice) return <p className="p-6 text-sm text-red-600">{error}</p>;
   if (!invoice) return null;
@@ -102,6 +123,13 @@ export default function InvoiceDetailPage() {
         >
           Print / PDF
         </Link>
+        <button
+          onClick={handleDelete}
+          disabled={deleting}
+          className="ml-auto text-red-600 hover:underline disabled:opacity-50"
+        >
+          {deleting ? "Deleting..." : "Delete"}
+        </button>
       </div>
 
       <div className="mt-4 rounded-lg border border-black/10 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-neutral-900">
