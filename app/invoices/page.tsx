@@ -71,7 +71,9 @@ export default function InvoicesPage() {
           <tbody>
             {invoices.map((inv) => (
               <tr key={inv.id}>
-                <td>{inv.number}</td>
+                <td>
+  <Link href={`/invoices/${inv.id}`}>{inv.number}</Link>
+</td>
                 <td>{inv.client.name}</td>
                 <td>{inv.status}</td>
                 <td>{new Date(inv.dueDate).toLocaleDateString()}</td>
